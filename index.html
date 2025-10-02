@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SPAROW — Video Gallery</title>
+  <meta name="description" content="SPAROW project gallery — MP4/WebM videos with a clean, mobile‑friendly viewer." />
+  <style>
+    :root { --bg:#0b0d10; --card:#12151a; --fg:#e8eef6; --muted:#a9b2c3; --accent:#62a8ff; --radius:16px; }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{margin:0;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;background:var(--bg);color:var(--fg)}
+    header{position:sticky;top:0;z-index:20;background:rgba(13,17,23,.7);backdrop-filter:blur(6px);border-bottom:1px solid #1e232c}
+    .wrap{max-width:1100px;margin:0 auto;padding:14px 16px}
+    h1{font-size:clamp(20px,3vw,30px);margin:0}
+    .sub{color:var(--muted);font-size:13px}
+
+    main{max-width:1100px;margin:0 auto;padding:14px 16px 40px}
+    .grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+    .card{background:var(--card);border:1px solid #232936;border-radius:var(--radius);overflow:clip;box-shadow:0 3px 10px rgba(0,0,0,.25)}
+    .thumb{aspect-ratio:16/10;width:100%;display:block;background:#0f1319;position:relative}
+    .thumb video,.thumb img{width:100%;height:100%;object-fit:cover;display:block}
+    .meta{padding:10px 12px 12px}
+    .title{font-weight:600;font-size:14px;margin:0 0 6px}
+    .desc{color:var(--muted);font-size:12px;margin:0}
+    .zoom{position:absolute;top:8px;right:8px;background:rgba(0,0,0,.45);border:1px solid #2b3342;color:#e8eef6;border-radius:8px;padding:4px 7px;font-size:12px;cursor:pointer}
+    .zoom:hover{background:rgba(0,0,0,.6)}
+
+    dialog::backdrop{background:rgba(0,0,0,.6)}
+    dialog{border:1px solid #273142;background:#0d1117;color:var(--fg);border-radius:18px;padding:0;max-width:92vw}
+    .modal-head{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border-bottom:1px solid #1f2633}
+    .close{appearance:none;border:1px solid #2b3342;background:#121720;color:var(--fg);border-radius:10px;padding:6px 10px;cursor:pointer}
+    .player{width:min(86vw,1100px);max-height:78vh;margin:0 auto;background:#0f1319;border-radius:14px}
+    .player video,.player img{width:100%;height:100%;object-fit:contain;display:block;border-radius:14px}
+
+    footer{color:var(--muted);font-size:12px;border-top:1px solid #1e232c}
+    a{color:var(--accent)}
+
+    .err{position:absolute;inset:0;display:grid;place-items:center;padding:10px;text-align:center;color:#ffbdbd;border:1px dashed #512929;background:#1b0d0d}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <h1>SPAROW Video Gallery</h1>
+      <div class="sub">Files live in <code>Project/SPAROW/gifs/</code>. <strong>MP4-only is perfectly fine</strong>; WebM & poster are optional. GIF can be added as a fallback.</div>
+    </div>
+  </header>
+
+  <main>
+    <div id="grid" class="grid"></div>
+  </main>
+
+  <dialog id="viewer">
+    <div class="modal-head">
+      <div id="viewerTitle" style="font-weight:600;font-size:14px">Preview</div>
+      <button class="close" id="closeBtn" aria-label="Close">Close</button>
+    </div>
+    <div class="player" id="player"></div>
+    <div style="padding:10px 12px 14px;color:#a9b2c3;font-size:12px" id="viewerDesc"></div>
+  </dialog>
+
+  <footer>
+    <div class="wrap" style="display:flex;justify-content:space-between;gap:12px;align-items:center;padding:14px 16px;">
+      <div>© <span id="year"></span> SPAROW Team • GitHub Pages</div>
+      <div><a id="rawLink" href="#" rel="noopener">Open source file</a></div>
+    </div>
+  </footer>
+
+  <script>
+    // ===== HOW TO USE =====
+    // 1) Add entries to 'items' below. Provide mp4/webm (preferred) and/or gif.
+    // 2) Commit & push. The gallery will render automatically.
+    // (Advanced) You can generate this list via a manifest script; ask if you'd like one.
+
+    const items = [
+      // Example: MP4 only (no webm, no poster, no gif)
+      {
+        title: "Shot 001 — Trace",
+        desc: "Gate step 10 fs",
+        mp4: "Project/SPAROW/gifs/shot001.mp4"
+      },
+      // Example: MP4 + WebM + poster (optional extras)
+      {
+        title: "Shot 002 — Retrieval",
+        desc: "Phase sweep",
+        mp4: "Project/SPAROW/gifs/shot002.mp4",
+        webm: "Project/SPAROW/gifs/shot002.webm",
+        poster: "Project/SPAROW/gifs/shot002.jpg"
+      }
+    ];
+
+    const grid = document.getElementById('grid');
+
+    const makeCard = (it)=>{
+      const card = document.createElement('article');
+      card.className = 'card';
+      const safeAlt = (it.title||'SPAROW media').replaceAll('"','&quot;');
+      const hasVideo = Boolean(it.mp4 || it.webm);
+      const mediaHTML = hasVideo ? `
+          <video class="vid" preload="metadata" playsinline muted loop ${it.poster?`poster="${it.poster}"`:''}>
+            ${it.webm?`<source src="${it.webm}" type="video/webm">`:''}
+            ${it.mp4?`<source src="${it.mp4}" type="video/mp4">`:''}
+          </video>`
+        : `<img src="${it.gif}" alt="${safeAlt}" loading="lazy" />`;
+
+      card.innerHTML = `
+        <div class="thumb">
+          ${mediaHTML}
+          <button class="zoom" type="button" title="Open viewer">⤢</button>
+        </div>
+        <div class="meta">
+          <h3 class="title">${it.title||'Untitled clip'}</h3>
+          ${it.desc?`<p class="desc">${it.desc}</p>`:''}
+        </div>`;
+
+      const zoomBtn = card.querySelector('.zoom');
+      zoomBtn.addEventListener('click', (e)=>{ e.stopPropagation(); openViewer(it); });
+
+      const vid = card.querySelector('video');
+      const img = card.querySelector('img');
+
+      if (vid) {
+        vid.addEventListener('click', (e)=>{ e.stopPropagation(); try { vid.currentTime = 0; vid.play(); } catch(_){} });
+        vid.addEventListener('error', ()=>{
+          const box = document.createElement('div');
+          box.className = 'err';
+          box.innerHTML = `Video failed to load.<br><small>Check mp4/webm paths and file sizes.</small>`;
+          vid.replaceWith(box);
+        });
+      } else if (img) {
+        const baseSrc = it.gif;
+        img.addEventListener('click', (e)=>{ e.stopPropagation(); const url = baseSrc + (baseSrc.includes('?')?'&':'?') + 'r=' + Date.now(); img.src = url; });
+        img.addEventListener('error', () => {
+          const box = document.createElement('div');
+          box.className = 'err';
+          box.innerHTML = `GIF failed to load:<br><code class="small">${it.gif||''}</code>`;
+          img.replaceWith(box);
+        });
+      }
+
+      return card;
+    }
+
+    items.forEach(it => grid.appendChild(makeCard(it)));
+
+    // Viewer
+    const dlg = document.getElementById('viewer');
+    const player = document.getElementById('player');
+    const viewerTitle = document.getElementById('viewerTitle');
+    const viewerDesc = document.getElementById('viewerDesc');
+    const rawLink = document.getElementById('rawLink');
+
+    function openViewer(it){
+      viewerTitle.textContent = it.title || 'Preview';
+      viewerDesc.textContent = it.desc || '';
+      rawLink.href = it.mp4 || it.webm || it.gif || '#';
+
+      const safeAlt = (it.title||'SPAROW media').replaceAll('"','&quot;');
+      if (it.mp4 || it.webm) {
+        player.innerHTML = `
+          <video id="viewerVideo" controls playsinline autoplay ${it.loopViewer? 'loop':''} ${it.poster?`poster="${it.poster}"`:''}>
+            ${it.webm?`<source src="${it.webm}" type="video/webm">`:''}
+            ${it.mp4?`<source src="${it.mp4}" type="video/mp4">`:''}
+          </video>`;
+        const vv = document.getElementById('viewerVideo');
+        vv.addEventListener('click', ()=>{ try { vv.currentTime = 0; vv.play(); } catch(_){} });
+      } else if (it.gif) {
+        player.innerHTML = `<img id="viewerImg" src="${it.gif}" alt="${safeAlt}" />`;
+        const vimg = document.getElementById('viewerImg');
+        vimg.addEventListener('click', ()=>{ const base = it.gif; const url = base + (base.includes('?') ? '&' : '?') + 'r=' + Date.now(); vimg.src = url; });
+      } else {
+        player.innerHTML = `<div style="padding:24px;color:#8fa1bd">No media provided for this item.</div>`;
+      }
+      if (dlg?.showModal) dlg.showModal(); else window.open(rawLink.href, '_blank');
+    }
+
+    document.getElementById('closeBtn').addEventListener('click', ()=> dlg.close());
+    dlg.addEventListener('click', (e)=>{ if(e.target===dlg) dlg.close(); });
+
+    // Autoplay visible videos in the grid
+    const io = new IntersectionObserver((entries)=>{
+      entries.forEach(e=>{
+        const v = e.target.querySelector('video');
+        if (!v) return;
+        if (e.isIntersecting) { v.play().catch(()=>{}); } else { v.pause(); }
+      });
+    }, { threshold: 0.35 });
+    document.querySelectorAll('.card').forEach(c => io.observe(c));
+
+    // Footer year
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>
