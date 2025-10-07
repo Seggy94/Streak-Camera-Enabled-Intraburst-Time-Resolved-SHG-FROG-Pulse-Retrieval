@@ -70,6 +70,67 @@
     </div>
   </footer>
 
+  // chatgpt's recommended script to make the videos play, since they're not playing without this
+  <script>
+    function makeCard(it){
+      const card = document.createElement('article');
+      card.className = 'card';
+    
+      const thumb = document.createElement('div');
+      thumb.className = 'thumb';
+    
+      if (it.mp4 || it.webm) {
+        const v = document.createElement('video');
+        v.muted = true;          // required for autoplay
+        v.loop = true;
+        v.playsInline = true;
+        v.preload = 'metadata';
+        if (it.poster) v.setAttribute('poster', it.poster);
+    
+        if (it.webm) {
+          const s1 = document.createElement('source');
+          s1.src = it.webm; s1.type = 'video/webm';
+          v.appendChild(s1);
+        }
+        if (it.mp4) {
+          const s2 = document.createElement('source');
+          s2.src = it.mp4; s2.type = 'video/mp4';
+          v.appendChild(s2);
+        }
+        thumb.appendChild(v);
+      } else if (it.gif) {
+        const img = document.createElement('img');
+        img.src = it.gif;
+        img.alt = it.title || 'SPAROW media';
+        thumb.appendChild(img);
+      } else {
+        const div = document.createElement('div');
+        div.className = 'err';
+        div.textContent = 'No media provided for this item.';
+        thumb.appendChild(div);
+      }
+    
+      const zoom = document.createElement('button');
+      zoom.className = 'zoom';
+      zoom.textContent = 'Open';
+      zoom.addEventListener('click', (e) => { e.stopPropagation(); openViewer(it); });
+      thumb.appendChild(zoom);
+    
+      // Open the viewer when the thumbnail itself is clicked
+      thumb.addEventListener('click', () => openViewer(it));
+    
+      const meta = document.createElement('div');
+      meta.className = 'meta';
+      meta.innerHTML = `<p class="title">${it.title || 'Untitled'}</p>
+                        <p class="desc">${it.desc || ''}</p>`;
+    
+      card.appendChild(thumb);
+      card.appendChild(meta);
+      return card;
+    }
+    </script>
+    
+
   <script>
     // ===== HOW TO USE =====
     // 1) Add entries to 'items' below. Provide mp4/webm (preferred) and/or gif.
@@ -103,7 +164,7 @@
       ],
       [
         { title: "Normal Operation", mp4: "Video/root/normal_operation_symmetrized_complete.mp4" },
-        { title: "Post MPC 1000µ Pulse", mp4: "Video/root/Post_MPC_1000uPulse_symmetrized_2.mp4" }
+        { title: "Post MPC 1000 Pulse", mp4: "Video/root/Post_MPC_1000uPulse_symmetrized_2.mp4" }
       ]
     ];
 
