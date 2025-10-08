@@ -124,10 +124,34 @@
         <source src="Video/FROG/100_Pulse_FROGs.mp4" type="video/mp4" />
         Your browser does not support the video tag.
       </video>
-      <figcaption>SHG FROG trace for each time slice in the 8.75 ns burst.</figcaption>
+      <figcaption>SHG FROG trace for each time slice in the 8.75 ns burst of 100 pulses. See poster for reconstructed pulse results.</figcaption>
     </figure>
   </section>
 
+  <section class="prose">
+    <p>
+      If a burst's length exceeds the sweep time range of the streak camera, perform the above measurement for multiple time segments of the burst. Then stitch the burst time segments together to form a spectrogram of the entire SHG FROG burst for each delay time.
+    </p>
+  
+    <figure class="hero">
+      <video autoplay muted loop
+        autoplay
+        muted
+        loop
+        controls
+        preload="metadata"
+        playsinline
+        width="2000"
+        height="240"
+        class="responsive-video"
+      >
+        <!-- Add both sources if you have them; browser picks the first it supports -->
+        <source src="Video/Streak/Streak_20ns_Sweeps_1000_Pulse.mp4" type="video/mp4" />
+        Your browser does not support the video tag.
+      </video>
+      <figcaption>20 ns long spectrograms of SHG FROG signal vs. time delay for each of five segments of the 1000 pulse burst. Leading to trailing  edge of burst is from left to right.</figcaption>
+    </figure>
+  </section>
 
   <main>
     <div id="grid" class="grid"></div>
