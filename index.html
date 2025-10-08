@@ -20,6 +20,11 @@
     .prose figure { margin: 1rem 0; text-align: center; }
     .prose figcaption { font-size: .9rem; color: #666; margin-top: .5rem; }
 
+    .prose h2 { margin: 0 0 .5rem; }
+    .hero { margin-top: 1rem; text-align: center; }
+    .responsive-video { width: 100%; height: auto; display: block; border-radius: 12px; }
+    .hero figcaption { font-size: .9rem; color: #666; margin-top: .5rem; }
+
     main{max-width:1100px;margin:0 auto;padding:14px 16px 40px}
     .grid{display:grid;gap:14px;grid-template-columns:1fr}
     /* Two-up rows */
@@ -69,9 +74,36 @@
     </p>
     <figure>
       <img src="SPAROW_Schematic.png" alt="Overview" loading="lazy" />
-      <figcaption>Example generic pulse burst formation architecture, pulse burst, and intraburst varying pulses.</figcaption>
+      <figcaption>Schematic of intraburst time resolved SHG FROG pulse retrieval with a streak camera.</figcaption>
     </figure>
   </section>
+
+  <section class="prose">
+    <p>
+      Below is example raw data: a spectrogram for each delay time.
+    </p>
+  
+    <figure class="hero">
+      <video autoplay muted loop
+        autoplay
+        muted
+        loop
+        controls
+        preload="metadata"
+        playsinline
+        width="1600"
+        height="900"
+        class="responsive-video"
+      >
+        <!-- Add both sources if you have them; browser picks the first it supports -->
+        <source src="Video/FROG/FROG_20ns_Sweep_1.webm" type="video/webm" />
+        <source src="Video/FROG/FROG_20ns_Sweep_1.mp4" type="video/mp4" />
+        Your browser does not support the video tag.
+      </video>
+      <figcaption>Spectrogram of SHG FROG signal vs. time delay from a 100 pulse burst of 11.424 GHz rep rate pulses.</figcaption>
+    </figure>
+  </section>
+  
 
   <main>
     <div id="grid" class="grid"></div>
