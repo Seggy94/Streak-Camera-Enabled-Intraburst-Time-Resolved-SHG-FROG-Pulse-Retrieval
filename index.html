@@ -18,7 +18,7 @@
     .prose { max-width: 960px; margin: 2rem auto; padding: 0 1rem; line-height: 1.7; font-size: 1.5rem;}
     .prose img { max-width: 100%; height: auto; border-radius: 12px; display: block; margin: 1rem auto; }
     .prose figure { margin: 1rem 0; text-align: center; }
-    .prose figcaption { font-size: .9rem; color: #666; margin-top: .5rem; }
+    .prose figcaption { font-size: 1.2rem; color: #666; margin-top: .5rem; }
 
     .prose h2 { margin: 0 0 .5rem; }
     .hero { margin-top: 1rem; text-align: center; }
@@ -103,6 +103,31 @@
     </figure>
   </section>
   
+  <section class="prose">
+    <p>
+      The spectrograms are sliced into time segments, and individual FROG traces are obtained for each time slice. Phase retrieval is performed on each FROG trace, and thus a unique pulse is reconstructed for each time slice.
+    </p>
+  
+    <figure class="hero">
+      <video autoplay muted loop
+        autoplay
+        muted
+        loop
+        controls
+        preload="metadata"
+        playsinline
+        width="1600"
+        height="900"
+        class="responsive-video"
+      >
+        <!-- Add both sources if you have them; browser picks the first it supports -->
+        <source src="Video/Streak/100_Pulse_FROGs.mp4" type="video/mp4" />
+        Your browser does not support the video tag.
+      </video>
+      <figcaption>SHG FROG trace for each time slice in the 8.75 ns burst.</figcaption>
+    </figure>
+  </section>
+
 
   <main>
     <div id="grid" class="grid"></div>
